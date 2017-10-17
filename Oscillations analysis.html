@@ -1,0 +1,645 @@
+<!-- <!doctype html> -->
+<html>
+<head>
+<link rel="icon" href="FM.ico" type="image/x-icon" /><link rel="shortcut icon" href="FM.ico"><link rel="Bookmark" href="FM.ico">
+    <title>ForthMath</title>
+    <meta name="name" content="content" charset="utf-8">
+    <style type="text/css">
+        #Head{
+            float: none;
+            width:100%;
+            margin: auto;;
+        }
+        #Contaniner{
+            float: none;
+            width:100%;
+            margin:auto;
+            background-color: #000;
+        }
+        #textContain{
+            float: left;
+            width:24.5%;
+            height:100%;
+            margin: auto;
+            background-color: #fff;
+            border: double;
+        }
+        #canvasDiv{
+            float: right;
+            width: 74.5%;
+            height:100%;
+            margin: 0;
+            z-index: 5;
+        }
+        #fftCanvas{
+            border: thin red solid;
+            background-color: aqua;
+            position: absolute;
+            display:inline;
+            visibility: hidden;
+            z-index: 100;
+            cursor: crosshair;
+        }
+        #myCanvas{
+            border: thin black solid;
+            position: absolute;
+            z-index: 10;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+<h1 style="color: #00f;">Plot program by Zhejiang university, Zhen Wang, 20170209</h1>
+<div id="Head" style="border: double rgba(0,0,0,0.99); width: 100%">
+    <input type="file" id="file" />
+    <input id="inputField" type="text"
+           value="10000"
+           onfocus="if(value=='10000'){value=''}"
+           onblur="if(value==''){value='10000'}"/>
+    <input type="button" onclick="readData.textToNum()" value="Transform"/>
+    <input type="button" onclick="SubHall()" value="SubHall"/>
+    <input type="button" onclick="drawData()" value="draw figure"/>
+    <input type="button" onclick="fitPoint()" value="Point Select">
+    <input type="button" onclick="fitOver()" value="Select Over">
+    <input id="polyText" type="text"
+           value="Input Poly:1~6"
+           onfocus="if(value=='Input Poly:1~6'){value=''}"
+           onblur="if(value==''){value='Input Poly:1~6'}"/>
+    <input type="button" onclick="drawFit()" value="Draw Fit Curve"/>
+    <input type="button" onclick="clearFit()" value="Clear Fit"/>
+    <input type="button" onclick="init()" value="Initiate" style="float: right"/>
+    <input type="button" onclick="residual()" value="Residual"/>
+    <input id="fftBeginField" type="text"
+           value="Input Begin Field"
+           onfocus="if(value=='Input Begin Field'){value=''}"
+           onblur="if(value==''){value='Input Begin Field'}"/>
+    <input type="button" onclick="showFFT()" value="FFT"/>
+    <input type="button" onclick="xRestore(),exportData([storeX,storeY,residualY,residualForFftX,residualForFftY,showFFTX,showFFTY])" value="Download"/>
+    <a download="" href="" target="blank" id="downPdf"></a>
+</div>
+<div id="Contaniner">
+    <div id="textContain">
+        <h1>
+            1.Fit process
+        </h1>
+    </div>
+    <div id="canvasDiv" >
+        <canvas id="fftCanvas"></canvas>
+        <canvas id="myCanvas">
+        </canvas>
+    </div>
+</div>
+<script type="text/javascript" src="numeric.js"></script>
+<script charset="utf-8">
+    //canvas details;
+    function $$(id){return document.getElementById(id)};
+    var myCanvas=$$("myCanvas");
+    myCanvas.setAttribute("width",$$("canvasDiv").clientWidth);
+    myCanvas.setAttribute("height",$$("canvasDiv").clientHeight);
+    var rect=myCanvas.getBoundingClientRect();
+    var pointsChamber=$$("textContain");
+    if (myCanvas.getContext) {
+        var ctx = myCanvas.getContext('2d');
+    }
+    var fftCanvas=$$("fftCanvas");
+    fftCanvas.setAttribute("width",$$("canvasDiv").clientWidth/2.5);
+    fftCanvas.setAttribute("height",$$("canvasDiv").clientHeight/2.5);
+        //text相关
+    //clean text
+    var fftRect=fftCanvas.getBoundingClientRect();
+    if (fftCanvas.getContext) {
+        var fftctx = fftCanvas.getContext('2d');
+    }
+    var shift=0;//canvas线段平移，为显示清楚
+    function cleanText() {
+        $$("textContain").innerHTML="<h1>1.Fit process</h1>"
+    }
+    //write text
+    function writeText(text) {
+        var son=document.createElement("p");
+        son.innerHTML=text;
+        pointsChamber.appendChild(son);
+    }
+    //画图相关
+    //根据xy点画出图形，ctx canvas 2D属性名称，rect canvas容器坐标属性
+    function draw(arrayX,arrayY,ctx,rect) {
+        ctx.beginPath();
+        ctx.moveTo(rect.width/2+arrayX[0]-shift,rect.height/2-arrayY[0]-shift);
+        var i=1;
+        while(arrayY[i]!=undefined) {
+            ctx.lineTo(rect.width/2+arrayX[i]-shift, rect.height/2-arrayY[i]-shift);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="red";//line color
+            ctx.stroke();
+            i++;
+        }
+    }
+    function drawCenter(arrayX,arrayY,ctx,rect) {
+        ctx.beginPath();
+        ctx.moveTo(arrayX[0]-shift,rect.height-arrayY[0]-shift);
+        var i=1;
+        while(arrayY[i]!=undefined) {
+            ctx.lineTo(arrayX[i]-shift, rect.height-arrayY[i]-shift);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="red";//line color
+            ctx.stroke();
+            i++;
+        }
+    }
+    //画出导入数据的图形（XY共2列）；
+    function drawData() {
+        draw(readData.arrayX,readData.arrayY,ctx,rect);
+    }
+    //画出坐标轴
+    function drawBackground(ctx,rect) {
+        //draw X axis;
+        ctx.beginPath();
+        ctx.moveTo(0-shift,rect.height/2-shift);
+        ctx.lineTo(rect.width-shift, rect.height/2-shift);
+        ctx.lineWidth=1;//line width
+        ctx.strokeStyle="black";//line color
+        ctx.stroke();
+        //draw Y axis;
+        ctx.beginPath();
+        ctx.moveTo(rect.width/2-shift,0-shift);
+        ctx.lineTo(rect.width/2-shift, rect.height-shift);
+        ctx.lineWidth=1;//line width
+        ctx.strokeStyle="black";//line color
+        ctx.stroke();
+    }
+    function drawBackgroundCenter(ctx,rect) {
+        //draw X axis;
+        ctx.beginPath();
+        ctx.moveTo(0-shift,0-shift);
+        ctx.lineTo(rect.width-shift, 0-shift);
+        ctx.lineWidth=1;//line width
+        ctx.strokeStyle="black";//line color
+        ctx.stroke();
+        //draw Y axis;
+        ctx.beginPath();
+        ctx.moveTo(0-shift,0-shift);
+        ctx.lineTo(0-shift, rect.height-shift);
+        ctx.lineWidth=1;//line width
+        ctx.strokeStyle="black";//line color
+        ctx.stroke();
+    }
+    //显示刻度和数值,intervel刻度间隔，long刻度长短,x axis div 50;//same as readText
+    function showTicks(intervel,long,ctx,rect){
+        //lables settings
+        for(var i=1;i<(rect.width-15)/intervel;i++){
+            ctx.font="bold 20px arial";
+            ctx.textAlign="right";
+            ctx.textBaseline="middle";
+            ctx.strokeStyle="#000"
+            //y axis 上半部分
+            ctx.fillText(-intervel*i,rect.width/2-10,i*intervel+rect.height/2);
+            ctx.fillText(intervel*i,rect.width/2-10,-i*intervel+rect.height/2);
+            ctx.beginPath();
+            ctx.moveTo(-long+rect.width/2,i*intervel+rect.height/2);
+            ctx.lineTo(long+rect.width/2,i*intervel+rect.height/2);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="black";//line color
+            ctx.stroke();
+            //y axis 下半部分
+            ctx.beginPath();
+            ctx.moveTo(-long+rect.width/2,-i*intervel+rect.height/2);
+            ctx.lineTo(long+rect.width/2,-i*intervel+rect.height/2);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="black";//line color
+            ctx.stroke();
+        }
+        for(var i=1;i<(rect.height-15)/intervel;i++){
+            ctx.font="bold 20px arial";
+            ctx.textAlign="right";
+            ctx.textBaseline="middle";
+            ctx.strokeStyle="#000"
+            ctx.fillText(i*2,i*intervel+rect.width/2+5,rect.height/2+20);
+            ctx.fillText(-i*2,-i*intervel+rect.width/2+5,rect.height/2+20);
+            //y axis 上半部分
+            ctx.beginPath();
+            ctx.moveTo(i*intervel+rect.width/2-shift,-long+rect.height/2-shift);
+            ctx.lineTo(i*intervel+rect.width/2-shift,long+rect.height/2-shift);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="black";//line color
+            ctx.stroke();
+            //y axis 下半部分
+            ctx.beginPath();
+            ctx.moveTo(-i*intervel+rect.width/2-shift,-long+rect.height/2-shift);
+            ctx.lineTo(-i*intervel+rect.width/2-shift,long+rect.height/2-shift);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="black";//line color
+            ctx.stroke();
+        }
+    }
+    function showTicksCenter(intervel,long,ctx,rect){
+        //lables settings
+        for(var i=1;i<(rect.height-15)/intervel;i++){
+            ctx.font="bold 20px arial";
+            ctx.textAlign="right";
+            ctx.textBaseline="middle";
+            ctx.strokeStyle="#000"
+            //y axis 上半部分
+            ctx.fillText(intervel*i,50,rect.height-i*intervel);
+            ctx.beginPath();
+            ctx.moveTo(-long,rect.height-i*intervel);
+            ctx.lineTo(long,rect.height-i*intervel);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="black";//line color
+            ctx.stroke();
+        }
+        for(var i=1;i<(rect.width-15)/intervel;i++){
+            ctx.font="bold 20px arial";
+            ctx.textAlign="right";
+            ctx.textBaseline="middle";
+            ctx.strokeStyle="#000"
+            ctx.fillText(i*intervel,i*intervel+15,rect.height-20);
+            //x axis 右半部分
+            ctx.beginPath();
+            ctx.moveTo(i*intervel-shift,-long+rect.height);
+            ctx.lineTo(i*intervel-shift,long+rect.height);
+            ctx.lineWidth=1;//line width
+            ctx.strokeStyle="black";//line color
+            ctx.stroke();
+        }
+    }
+    //初始化界面
+    function init() {
+        cleanText();
+        fftCanvas.setAttribute("width",$$("canvasDiv").clientWidth/2.5);
+        fftCanvas.setAttribute("height",$$("canvasDiv").clientHeight/2.5);
+        fftCanvas.style.visibility="hidden";
+        myCanvas.setAttribute("width",$$("canvasDiv").clientWidth);
+        myCanvas.setAttribute("height",$$("canvasDiv").clientHeight);
+        rect=myCanvas.getBoundingClientRect();
+        fftRect=fftCanvas.getBoundingClientRect();
+        drawBackground(ctx,rect);
+        showTicks(100,5,ctx,rect);
+    }
+    //自适应屏幕程序
+    window.addEventListener("resize",function (evt) {
+        init();
+        drawData();
+    },false);
+    //获取鼠标位置
+    function getMousePos(evt,obj) {
+        return {
+            x: evt.clientX-obj.left-(obj.right-obj.left)/2,
+            y: -(evt.clientY-obj.top-(obj.bottom-obj.top)/2),
+        }
+    }
+    //plot details;
+    //transform  two columns string data to arrays. !!! Normalized by a scale in order to show in the page!
+    var storeX, storeY,rectHeightBack,originy,finaly,times;
+    var readData={
+        xyArray: null,
+        xyArray2: null,
+        arrayX: new Array(),
+        arrayY: new Array(),
+        textToNum: function () {
+            var file=document.getElementById("file").files[0];
+            var reader=new FileReader();
+            reader.readAsText(file);
+            reader.onload=function() {
+                readData.xyArray=this.result.split("\n");
+                var i=0;
+                while(readData.xyArray[i]!=undefined){
+                    readData.xyArray2=readData.xyArray[i].split("	");
+                    readData.arrayX.push(Number(readData.xyArray2[0]));
+                    readData.arrayY.push(Number(readData.xyArray2[1]));
+                    i++;
+                }
+                rectHeightBack=rect.height/3;
+                readData.arrayX=sortIncrese(readData.arrayX,readData.arrayY)[0];
+                readData.arrayY=sortIncrese(readData.arrayX,readData.arrayY)[1];
+                originy=readData.arrayY[0];
+                readData.arrayX=normalizeX(readData.arrayX,50);
+                readData.arrayY=normalizeY(readData.arrayY,rectHeightBack);
+                finaly=readData.arrayY[0];
+                times=finaly/originy;
+            }
+        }
+    }
+    //保存origin data of X. Y is normalized by Y[last]
+    function xRestore() {
+        storeX=numeric.div(readData.arrayX,50);
+        storeY=numeric.div(readData.arrayY,times);
+        residualY=numeric.div(residualY,times);
+        residualForFftX=numeric.mul(residualForFftX,50);
+        residualForFftY=numeric.div(residualForFftY,times);;
+        showFFTY=numeric.div(showFFTY,times);
+    }
+    //扣除霍尔贡献
+    function SubHall() {
+        var x=sortIncrese(readData.arrayX,readData.arrayY)[0];
+        var y=sortIncrese(readData.arrayX,readData.arrayY)[1];
+        var interXStart=Math.round(x[0]/50)*50;
+        var interXEnd=numeric.mul(interXStart,-1);
+        var result=lineInterpolate(x,y,interXStart,interXEnd,1001);//插值1001
+        var tempX=result.x;
+        var tempY=result.y;
+        var x0=[];//x output
+        var y0=[];//y output
+        for(var i=0;i<1001;i++){
+            x0[i]=tempX[i];
+            y0[i]=(tempY[i]+tempY[1000-i])/2;
+        }
+        readData.arrayX=x0;
+        readData.arrayY=y0;
+    }
+    //sort increase according array1;
+    function sortIncrese(array1,array2) {
+        var len=array1.length;
+        for (var i=0;i<len;i++)
+            for(var j=0;j<=len-1-i;j++){
+                if(array1[j]>array1[j+1]){
+                    var temp1=array1[j+1]; var temp2=array2[j+1];
+                    array1[j+1]=array1[j]; array2[j+1]=array2[j];
+                    array1[j]=temp1;  array2[j]=temp2;
+                }
+            }
+        return [array1,array2];
+    }
+    //normalize by Array_max and multiple scale
+    function findMax(array) {
+        var x=array;
+        var len=x.length;
+        var y=numeric.linspace(1,len,len);
+        x=sortIncrese(x,y)[0];
+        return x[len-1]
+    }
+    var maxGloble;
+    function normalizeY(array,scale){
+        var len=array.length;
+        maxGloble=array[len-1];
+        var i=0;
+        while(array[i]!=undefined){
+            array[i]/=maxGloble;
+            array[i]*=scale;
+            i++;
+        }
+        return array;
+    }
+    function normalizeYByMax(array,scale){
+        var max=findMax(array);
+        var i=0;
+        while(array[i]!=undefined){
+            array[i]/=max;
+            array[i]*=scale;
+            i++;
+        }
+        return array;
+    }
+    //no change of arrayX,only multiple scale
+    function normalizeX(array,scale){
+        var i=0;
+        while(array[i]!=undefined){
+            array[i]/=$$("inputField").value;
+            array[i]*=scale;
+            i++;
+        }
+        return array;
+    }
+    //fit相关
+    var pointX=[];
+    var pointY=[];
+    //获取数据X坐标
+    var drawX=[];
+    //初始化fit figure的Y坐标
+    var drawY=[];
+    //data-fit的residual
+    var residualX=[];
+    var residualY=[];
+    //点击canvas产生坐标，并导入到pointXY数组
+    function point(evt) {
+            var mousePos=getMousePos(evt,rect);
+            writeText((mousePos.x/50).toFixed(2)+",    "+mousePos.y.toFixed(2));
+            pointX.push(mousePos.x);
+            pointY.push(mousePos.y);
+    };
+    //获取FFT坐标
+    function fftPoint(evt) {
+        var mousePos=getMousePos(evt,fftRect);
+        var x=mousePos.x+fftRect.width/2;
+        var y=mousePos.y+fftRect.height/2;
+        writeText(x.toFixed(2)+",    "+y.toFixed(2));
+    }
+    //获取fit点
+    function fitPoint(){
+        cleanText();
+        pointX=[];
+        pointY=[];
+        var pointsH2=document.createElement("h2");
+        pointsH2.innerHTML="Fit point coordinate:";
+        pointsChamber.appendChild(pointsH2);
+        myCanvas.addEventListener("click",point,false);
+    }
+    //结束获取fit点
+    function fitOver() {
+        myCanvas.removeEventListener("click",point,false);
+    }
+
+    //定义math的一些方法
+    var math={
+        //pow(x,m)
+        pow: function (x,m) {
+            var result=1;
+            if(m==0){
+                result=1;
+            }
+            for(var i=0;i<m;i++){
+                result*=x;
+            }
+            return result;
+        },
+        //matrix(a,n)=[[1,a1^1,a1^2...],[1,a2,a2^2...],...]
+        matrix: function (array,n) {
+            var len=array.length;
+            var mat=[];
+            for(var i=0;i<len;i++){
+                mat[i]=[];
+                for(var j=0;j<=n;j++){
+                    mat[i][j]=math.pow(array[i],j);
+                }
+            }
+            return mat;
+        },
+        //1,2,3,4,5次polyfit,返回系数a0,a1,a2...
+        polyN: function (arrayX,arrayY,N) {
+            var H=math.matrix(arrayX,N);
+            var HT=numeric.transpose(H);
+            var A=numeric.dot(HT,H);
+            var B=numeric.inv(A);
+            var C=numeric.dot(B,HT);
+            var P=numeric.dot(C,arrayY);
+            return P;
+        },
+        polyCurve: function (P,x) {
+            var len=P.length;
+            var result=0;
+            for(var i=0;i<len;i++){
+                result+=P[i]*math.pow(x,i);
+            }
+            return result;
+        }
+    }
+    //定义线性插值法
+    function lineInterpolate(arrayX,arrayY,start,end,N) {
+        var xLen=arrayX.length;
+        var yLen=arrayY.length;
+        if(xLen!==yLen){alert("Data Wrong!")};
+        var x=numeric.linspace(start,end,N);
+        var i=0,y=[];
+        while(x[i]<=end){
+            if(x[i]<arrayX[0]){
+                y[i]=arrayY[0]+(arrayY[1]-arrayY[0])/(arrayX[1]-arrayX[0])*(x[i]-arrayX[0]);
+                i++;
+                continue;
+            }
+            else if(x[i]>arrayX.last){
+                y[i]=arrayY[xLen-2]+(arrayY[xLen-1]-arrayY[xLen-2])/(arrayX[xLen-1]-arrayX[xLen-2])*(x[i]-arrayX[xLen-2]);
+                i++;
+                continue;
+            }
+            var k=0;
+            while(x[i]>=arrayX[k]){
+                k++;
+            }
+            if(x[i]==arrayX[k-1]){ y[i]=arrayY[k-1]}
+            else y[i]=arrayY[k-1]+(arrayY[k]-arrayY[k-1])/(arrayX[k]-arrayX[k-1])*(x[i]-arrayX[k-1]);
+            i++;
+        }
+        return{
+            x: x,
+            y: y
+        }
+    }
+    //画出fit曲线
+    function drawFit() {
+        drawX=readData.arrayX;
+        var x=pointX;
+        var y=pointY;
+        var n=$$("polyText").value;
+        var P=math.polyN(x,y,n);
+        var i=0;
+        while(readData.arrayX[i]!=undefined){
+            drawY.push(math.polyCurve(P,readData.arrayX[i]))
+            i++;
+        }
+        draw(drawX,drawY,ctx,rect)
+    }
+    //清除fit曲线
+    function clearFit() {
+        cleanText();
+        init();
+        drawData();
+        drawY=[];
+    }
+    //画出剩余曲线
+    function residual() {
+        residualX=readData.arrayX;
+        residualY=[];
+        var i=0;
+        while (drawY[i]!=undefined){
+            residualY.push(readData.arrayY[i]-drawY[i]);
+            i++;
+        }
+        draw(residualX,residualY,ctx,rect)
+    }
+    var residualForFftX=[];
+    var residualForFftY=[];
+    //插值函数，从start到end N个等间距
+    function interpolation(arrayX,arrayY,start,end,N) {
+        var x=numeric.linspace(start,end,N)
+        var result=numeric.spline(arrayX,arrayY,0,0).at(x);
+        return {x:x,y:result};
+    }
+    //FFT结果获取和显示
+    var showFFTX, showFFTY,sortX,sortY;
+    function FFT() {
+        var fftBeginFieldValue=$$("fftBeginField").value;
+        fftBeginFieldValue*=50;//该系数与readData.arrayX Normalize 系数一致；
+        var i=0;
+        var len=residualX.length;
+        do{i++}while(residualX[i]< fftBeginFieldValue);
+        var newLen=len-i;
+        for(var j=0;j<newLen;j++){
+            residualForFftX[j]=1/residualX[i];
+            residualForFftY[j]=residualY[i];
+            if(j<50){residualForFftY[j]=0}
+            i++;
+        }
+        sortX=sortIncrese(residualForFftX,residualForFftY)[0];
+        sortY=sortIncrese(residualForFftX,residualForFftY)[1];
+        var start=sortX[0],end=fftBeginFieldValue<50? sortX[len-1]:0.02;//1/50与前面一致
+        var N=4000;
+        var interX=interpolation(sortX,sortY,start,end,N).x;
+        var interY=interpolation(sortX,sortY,start,end,N).y;
+        var dataX=interX;
+        var inter=end-start;
+        var dataY=interY;
+        var y=numeric.mul(dataX,0)
+        var real=(new numeric.T(dataY,y)).fft().x;
+        var imag=(new numeric.T(dataY,y)).fft().y;
+        var k=numeric.div(1,inter)/50;
+        var Frequency=numeric.mul(numeric.linspace(0,dataX.length-1,dataX.length),k);
+        var Amplitude=numeric.div(numeric.sqrt(numeric.add(numeric.pow(real,2),numeric.pow(imag,2))),N);
+        for(var m=Frequency.length/2;m<Frequency.length;m++){
+            Frequency[k]="";
+            Amplitude[k]="";
+        }
+        showFFTX=Frequency;
+        showFFTY=Amplitude;
+    }
+    function showFFT() {
+        FFT();
+        init();
+        drawData();
+        drawFit();
+        fftCanvas.style.visibility="visible";
+        drawBackgroundCenter(fftctx,fftRect);
+        showTicksCenter(100,10,fftctx,fftRect);
+        var x=showFFTX;
+        var y=showFFTY;
+        sortX=numeric.mul(sortX,20000);
+        sortY=numeric.mul(sortY,10);
+        draw(sortX,sortY,ctx,rect);
+        y=normalizeY(y,fftRect.height);
+        drawCenter(x,y,fftctx,fftRect);
+        fftCanvas.addEventListener("click",fftPoint,false)
+    }
+    function exportData(array) {
+        var data=[];
+        var csvContent;
+        var encodedUri;
+        var i=0;
+        var len=array.length;
+        var sonLen=array[0].length;
+        for(var k=1;k<len;k++){
+            var temp=array[k].length;
+            if(temp>sonLen){
+                sonLen=temp;
+            }
+        }
+        while(i<sonLen){
+            var m=numeric.mul(i,len);
+            for(var j=0;j<len;j++){
+                var n=m+j;
+                if (array[j][i]==undefined){array[j][i]="";}
+                data[n]=array[j][i];
+            }
+            i++;
+        }
+        csvContent = "data:text/txt;charset=utf-8,";
+        csvContent+="Field"+"	"+"data"+"	"+"residualY"+"	"+"reverseH"+"	"+"Y"+"	"+"Fre"+"	"+"Amp"+"\n";
+        data.forEach(function(infoArray, index){
+            var dataString = (index+1)%len!=0 ? infoArray+"	": infoArray+"\n";
+            csvContent += index < data.length ? dataString: dataString+ "\n";
+        });
+        encodedUri = encodeURI(csvContent);
+        window.open(encodedUri);
+
+    }
+    init();
+</script>
+</body>
+</html>

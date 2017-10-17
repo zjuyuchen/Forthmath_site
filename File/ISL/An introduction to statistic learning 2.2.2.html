@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISL note of YC 2.2.2</title>
+</head>
+<body>
+<h1 style="font-size: 200%">2.2.2 <i>The Bias-Variance Trade-Off</i></h1>
+<p style="font-size: 200%; ">
+    <img src="Eq2.7.jpg" alt="Bias-V-Trade-off"><br>
+    测试集误差主要由三个部分组成，分别是：<br>
+    <b>Bias</b>,比如数据本来是二次方的，用一次方去拟合 <br>
+    这个因为拟合方式和数据实际趋势的差距产生的误差叫做Bias。 <br>
+    <b>Variance</b>,比如对于线性区域的线性拟合和平滑处理的过拟合 <br>
+    对前者而言，引入一个测试点产生的误差会小于过拟合产生的误差。<br>
+    <b>irreducible</b>，前面提到了，这个误差是无法避免的。<br>
+
+    对于严格的拟合来说，Bias比较大，对于灵活的拟合来说，Variance比较大, <br>
+    两者对测试集误差的影响见下图：<br>
+    <img src="Fig%202.12.jpg" alt="三种误差"><br>
+    三图分别是不同的数据集，可见，不同数据集的两种误差随拟合方式灵活性的 <br>
+    增加变化是不一样的。但是Bias降低，variance增加的趋势是一致的。 <br>
+    要让bias最低，或者让variance最低都很容易，但让两者同时低就很难了。 <br>
+
+</p>
+
+
+</body>
+</html>

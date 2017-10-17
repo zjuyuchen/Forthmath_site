@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISL note of YC 2.2.3</title>
+</head>
+<body>
+<h1 style="font-size: 200%">2.2.3 <i>The Classification Setting</i></h1>
+<p style="font-size: 200%; ">
+    对于一个分类问题来说，估算拟合质量最常用的方式是训练错误率：<br>
+    <img src="Eq2.8.jpg" alt="error rate"><br>
+    上式中，I函数意味着，如果括号内为真则值为1，为假，则值为0 <br>
+    所以，如果全部判断正确，上式为1，全部判断错误，上式为0。<br>
+    一般的拟合介于1和0之间。<br>
+    前面说过，我们的目的是降低测试集的错误率： <br>
+    <img src="Eq2.9.jpg" alt="test error rate"><br>
+
+    <b>贝叶斯分类</b><br>
+    我们可以定义将X判断为Y=j的概率为： <br>
+    <img src="Eq2.10.jpg" alt="Bayes classifier"><br>
+    如果上式大于0.5，就分类为1，反之小于0.5就分类为2 <br>
+
+    <img src="Fig%202.13.jpg" alt="Bayes classifier example"><br>
+    贝叶斯分类是由上图中贝叶斯决策边界（虚线）决定的。<br>
+    在这条线上，橙色和蓝色区域的概率都是0.5。<br>
+
+    <b>K-Nearest Neighbors</b><br>
+    <img src="Eq2.12.jpg" alt="knn"><br>
+    给定一个测试点x0，和一个K， KNN先选中训练集中最接近x0 <br>
+    的K个点，用N0代替。然后判断属于j类的平均概率。<br>
+    最终，KNN应用贝叶斯定理，将x0归类为概率最大的类。<br>
+    K的选取对拟合的bias和variance影响很大，我们可以看下图： <br>
+    <img src="Fig%202.16.jpg" alt="comparison"><br>、
+    K=1灵活性很高，K=100严格性很高。<br>
+    随K的变化，不出意料的我们可以看出在训练集和测试集中错误率的变化曲线：<br>
+    <img src="Fig%202.17.jpg" alt="k dependent"><br>
+    可以看出，和前面regression的情况很相似。<br>
+
+
+</p>
+
+
+</body>
+</html>

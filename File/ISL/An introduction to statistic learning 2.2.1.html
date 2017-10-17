@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISL note of YC 2.2.1</title>
+</head>
+<body>
+<h1 style="font-size: 200%">2.2.1 <i>测量拟合质量</i></h1>
+<p style="font-size: 200%; ">
+    最常用的均方差Mean square error（MSE）<br>
+    <img src="eq2.5.jpg" alt="MSE"><br>
+    然而我们更关心的是对测试集的MSE，而不是训练集的MSE <br>
+    比如下图中，橙色，蓝色，绿色分别对应了线性拟合，以及两个平滑拟合 <br>
+    训练集MSE随着拟合方式灵活性的增强而降低。<br>
+    但是对测试集而言，灵活性太高反而导致MSE变大，比如下图中的绿色点。<br>
+    <img src="Fig%202.9.jpg" alt="Overfiting"><br>
+    对于下面的例子，过拟合导致的测试集MSE变大更明显 <br>
+    <img src="Fig%202.10.jpg" alt="MSE"><br>
+
+    整本书的目的，就是通过寻找不同的方式，找到上面两张图测试集 <br>
+    MSE的最低点。
+</p>
+
+
+</body>
+</html>
