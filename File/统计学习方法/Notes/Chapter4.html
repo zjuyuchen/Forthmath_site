@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>朴素贝叶斯法</title>
+</head>
+<body>
+<p>
+    <h3>4.1 朴素贝叶斯法的学习与分类</h3>
+    <ol>
+        <li>联合概率P（X，Y）对于相互独立的两个事件，X,Y，同时发生的概率。P（X,Y）=P(X)*P(Y)</li>
+        <li>联合概率P（X，Y）对于有联系的两个事件，X,Y，同时发生的概率。P（X,Y）=P(X|Y)*P(Y)</li>
+        <li>通过学习先验概率分布P（Y）</li>
+        <li>条件概率分布P（X|Y）</li>
+        <li>从而得到联合概率分布P（X,Y）</li>
+        <li>生成模型 P（Y|X） = P（X, Y）/P(X)</li>
+        <li>后验最大化：朴素贝叶斯法将实例分到后验概率最大的类中</li>
+    </ol>
+    <h3>4.2朴素贝叶斯法的参数估计</h3>
+    <ol>
+        <li>应用极大似然估计相应概率</li>
+        <li><a href="https://www.zhihu.com/question/24124998/answer/242682386">什么是极大似然估计？</a></li>
+        <li>学习和分类算法</li>
+        <ul>
+            <li>先计算先验概率 P（Y=c） = SUM(I(y=c))/N</li>
+            <li>计算条件概率P（X|Y） = SUM（I（x=x,Y=c））/SUM(I(y=c))</li>
+            <li>计算P（x,y），找到后验概率最大的类</li>
+        </ul>
+    </ol>
+    <h3>贝叶斯估计</h3>
+    <li>用极大似然估计会出现概率为0的情况，后续的计算会产生偏差，解决这个问题要使用贝叶斯估计法</li>
+    <li>P(X|Y) = （SUM（I（x=x,Y=c））+ &#955;）/（SUM(I(y=c)) +S &#955;），其中S是特征的个数</li>
+    <li>通常&#955;=1， 称为拉普拉斯平滑</li>
+</p>
+</body>
+</html>
