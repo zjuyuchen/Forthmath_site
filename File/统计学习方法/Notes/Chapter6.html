@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+  });
+    </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <meta charset="UTF-8">
+    <title>Chapter6 Logistic Regression</title>
+</head>
+<body>
+    <h3>李航将Logistic翻译为逻辑斯蒂回归。下面我直接用LgR代替，以和Linear Regression 的LR区分</h3>
+    <h3>6.1 Logistic分布</h3>
+    <ul>
+        <li>分布函数：${F(x) = \frac{1}{1+{\rm e}^{-(x-\mu)/\gamma}}}$</li>
+        <li>密度函数：${f(x)= F'(x) = \frac{{\rm e}^{-(x-\mu)/\gamma}}{\gamma(1+{\rm e}^{-(x-\mu)/\gamma})^2}}$</li>
+        <li>分布函数是一个Sigmoid（S形）曲线，密度函数是一个钟形曲线。</li>
+        <li>LgR用${wx+b}$替换上面式子中${\rm e}$的指数</li>
+            <ul>
+                <li>如果我们把${w}$写成${w = (w^{(1)},w^{(2)},w^{(3)},...,w^{(n)}, b)}$</li>
+                <li>相应的把${x}$写成${x = (x^{(1)},x^{(2)},x^{(3)},...,x^{(n)}, 1)}$</li>
+            </ul>
+
+        <li>那么Log回归模型就变成如下形式：</li>
+            <ul>
+                <li>${P(Y=1|x) = \frac{{\rm e}^{wx}}{1+{\rm e}^{wx}}}$</li>
+                <li>${P(Y=0|x) = \frac{1}{1+{\rm e}^{wx}}}$</li>
+            </ul>
+        <li>事件发生的几率：发生与不发生的比值</li>
+            <ul>
+                <li>$odds = \frac{p}{1-p}$</li>
+            </ul>
+        <li>该时间发生的对数几率：</li>
+            <ul>
+                <li>$logit(p) = log(\frac{p}{1-p})$</li>
+            </ul>
+        <li>对LgR来说,输出为Y = 1的发生几率为:</li>
+            <ul>
+                <li>$log(\frac{P(Y=1|x)}{1-P(Y=1|x)}) = wx$</li>
+            </ul>
+        <li>可见，输出Y = 1的对数几率是$x$的线性函数，这就是LgR</li>
+        <li>模型参数估计，极大似然估计</li>
+            <ul>
+                <li>设：$P(Y=1|x) = \pi(x)$, $P(Y=0|x) = 1 - \pi(x)$</li>
+                <li>似然函数为:</li>
+                <ul>
+                    <li>$\prod^N_{i=1}[\pi(x_i)]^{y_i}[1-\pi(x_i)]^{1-y_i}$</li>
+                </ul>
+                <li>一般采用对数似然函数：</li>
+                <ul>
+                    <li>$L(w) = \sum^N_{i=1}[y_ilog\pi(x_i)+(1-y_i)log(1-\pi(x_i))]$
+                    <li>合并$y_ilog*,得到：$</li>
+                    <li>$L(w) = \sum^N_{i=1}[y_i(wx_i)-log(1+{\rm e}^{wx_i})]$</li>
+                    <li>对$L(w)$求极大值，得到了$w$的估计值，就转变成了以对数似然函数为目标函数的优化问题。</li>
+                </ul>
+            </ul>
+    </ul>
+    <h3>6.2 最大熵模型</h3>
+    <ul>
+        <li>原理：熵最大的模型是最好的模型</li>
+        <li>通常存在约束条件，也就是满足约束条件的模型集合中，熵最大的模型</li>
+        <li>熵的定义为：</li>
+        <ul>
+            <li>$H(P) = -\sum_xP(x)logP(x)$</li>
+            <li>满足下面不等式：</li>
+            <li>$0\leq H(P)\leq log|X|$, $|X|$为X中x的取值个数，当且仅当X分布均匀时取最大</li>
+        </ul>
+        <li>在对事实无知，没有更多信息的情况下，做等概率假设是合理的</li>
+        <li>举个例子，已知随机变量有5个取值，A, B, C, D, E，已知$P(A)+P(B)=\frac{3}{10}$,求各个取值的概率？</li>
+        <ul>
+            <li>在缺少其它信息的情况下，假设AB等概率，CDE等概率。</li>
+            <li>从而可以得到$P(A) = P(B) = \frac{2}{20}, P(C) = P(D) = P(E) = \frac{7}{30}$</li>
+        </ul>
+        <li>等概率分布便是遵循了最大熵原理</li>
+        <li>最大熵模型：</li>
+        <ul>
+            <li>$H(P)=-\sum_{x,y}\tilde{P}(x)P(y|x)logP(y|x)$</li>
+            <li>在所有满足约束条件的集合中，条件熵$H(P)$最大的模型为最大熵模型</li>
+        </ul>
+        <li>按照最优化问题的习惯，将上式中的负号去掉，变成求解$-H(P)$在满足约束条件下的最小值</li>
+        <li>求解约束问题一般要使用拉格朗日乘子法</li>
+        <ul>
+            <li>定义拉格朗日函数$L(P,w)$</li>
+            <li>$L(P,w) = -H(P) + w_0(1-\sum_yP(y|x))+\sum_{i=1}^nw_i (E_\tilde{P}(f_i)-E_P(f_i))$</li>
+            <li>原始问题是 $\min \limits_{P} \max \limits_w L(P,w)$</li>
+            <li>转化为$ \max \limits_w \min \limits_{P}L(P,w)$</li>
+        </ul>
+    </ul>
+    <h3>6.3 模型学习的最优化算法</h3>
+    <ul>
+        <li>一般采用极大似然估计，或者正则化的极大似然估计</li>
+        <li>采用拉格朗日乘子法可以将约束问题转换为极大极小，或者极小极大无约束问题</li>
+        <li>改进的方法有迭代尺度法、梯度下降法、拟牛顿法</li>
+    </ul>
+</body>
+</html>

@@ -3,38 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <title>ForthMath</title>
+    <style>
+        div{ margin: auto; width: 80%}
+        ol li {list-style-type:none;  text-align:center;}
+        h1 {color: crimson}
+        h2 {color: white; background-color: #75736e; text-align: left; width: 100%}
+        #索引 p {text-align:center;font-size: larger}
+    </style>
 </head>
-<body>
+<body >
+
 <div>
-    <h1>Experimental data analysis tools</h1>
+    <h1 style="text-align: center">写在前面的话</h1>
+    <p>随着信息传输速度的不断提升，我们能够获取的数据也指数地增长。近两年来，大数据分析和机器学习方向研究和从业也水涨船高。
+        尤其最近，谷歌公司的Alpha Go, Alpha Go zero等深度学习项目取得了突破的进展，吸足了大众的目光。隐隐让人们产生了
+        一种机器学习会促使发生工业革命的感觉。的确，自动驾驶、人脸识别、自然语言处理这些项目上让人们看到了生产力进一步提
+        高的潜力，勾画了未来十几年的美好蓝图。但是，机器学习仍然存在一些问题以及将要面临的问题,比如当前很火的深度学习。如果
+        模型进一步复杂下去，参数之间的相互作用越来越强，是否会变成物理中多体问题一样，只能通过宏观上的统计量或者各种简化条件
+        的假设去进行模型的设计？本质上来说，人工智能理论上近些年来没有明显的突破，它的发展还是依托于数据和计算能力。将来，模
+        型越复杂，对计算能力的要求越高，在量子计算没有得到实用性突破的情况下，未来几年内是否会面临瓶颈？我想，这些决定发展前
+        景的问题值得每一个试图进入这个行业的人思考。<br>
+        未来的机器学习发展，会和量子计算的实现将牢不可分。令人振奋的是，最近两年来，国内国外在量子计算方法都取得了不错的
+        进展。比如国内潘建伟领导的10个纠缠的超导量子比特的实现，未来几年内达到50个纠缠量子比特的宏伟目标。这些都让人对机器学习
+        的未来充满期待。也让人们对未来二十年科技和生活方式的发展充满憧憬！！！<br>
+        最后，希望在我知天命之年，可控核聚变得以实现，量子计算蓬勃发展，行星际旅行成为家常便饭，普通人也可以乘坐自动驾驶汽车在
+        火星的城市里驰骋！
+    </p>
+</div>
+
+<div id="索引">
+    <h1 style="text-align: center">索引</h1>
+        <p>实验相关工具</p>
+        <p><a href="#Experimental tools">Experimental data analysis tools</a></p>
+        <br>
+        <p>大数据&机器学习资源</p>
+        <p><a href="#思维导图">思维导图</a></p>
+        <p><a href="#cheat sheets">Big data cheat sheets</a></p>
+        <p><a href="File/Tutorial_HYLee_Deep.pdf">一天看懂Deep Learning</a></p>
+        <p><a href="http://speech.ee.ntu.edu.tw/~tlkagk/index.html">李宏毅个人主页</a></p>
+        <br>
+        <p>学习笔记</p>
+        <p><a href="#ISL">An introduction to statistic learning</a></p>
+        <p><a href="#统计学习方法">统计学习方法</a></p>
+        <br>
+        <p>很好的博客和网址</p>
+        <p><a href="#Good blogs">Good blogs</a></p>
+        <br>
+        <p>其它</p>
+        <p><a href="#other">Other</a></p>
+</div>
+<div id="Experimental tools">
+    <h2>Experimental data analysis tools</h2>
     <ul>
         <a href="Oscillations%20analysis.html"><li>Oscillation analysis</li></a>
     </ul>
 
 </div>
-<div>
-    <h1>一些非常好的博客</h1>
+<div id="Good blogs">
+    <h2>一些非常好的博客</h2>
     <ul>
         <li><a href="http://blog.csdn.net/zouxy09/article/details/24971995">范数规则化：L0，L1， L2</a></li>
     </ul>
 </div>
-<div>
-    <h2>Thanks <a href="https://www.zhihu.com/people/HANGZS/activities">zhenhang.sun</a></h2>
-    <h1>zhenhang. sun的思维导图</h1>
+<div id="思维导图">
+    <h2>zhenhang. sun的思维导图</h2>
+    <p>Thanks <a href="https://www.zhihu.com/people/HANGZS/activities">zhenhang.sun</a></p>
     <ul>
         <li><a href="File/pic_math0.png">数学分析</a></li>
         <li><a href="File/pic_math.png">概率论与数理统计</a></li>
         <li><a href="File/pic_data.png">大数据之路</a></li>
     </ul>
 </div>
-<div>
-    <h1>Read book online</h1>
+<div id="Readbooks">
+    <h2>Read book online</h2>
     <ul>
         <li><a href="File/An+Introduction+to+Statistical+Learning.pdf">An introduction to statistic learning (9M)</a></li>
     </ul>
 </div>
-<div>
-    <h1>Big data cheat sheet</h1>
+<div id="cheat sheets">
+    <h2>Big data cheat sheet</h2>
     <ul>
         <a href="https://www.dataquest.io/blog/numpy-cheat-sheet/"><li>Numpy cheat sheet</li></a>
         <a href=File/pandas-cheat-sheet.pdf><li>Numpy cheat sheet pdf version</li></a>
@@ -44,9 +91,7 @@
         <a href=File/ml_map.png><li>Scikit learn ML map PNG version</li></a>
         <li><a href="https://pan.baidu.com/s/1eSgn81G#list/path=%2F">zhenhan.sun's book list</a> ps: fe0k</li>
     </ul>
-</div>
-<div>
-    <h1>Cheat sheets for ML</h1>
+    <h2>Cheat sheets for ML</h2>
     <p>原文地址是：<a href="https://link.zhihu.com/?target=https%3A//unsupervisedmethods.com/cheat-sheet-of-machine-learning-and-python-and-math-cheat-sheets-a4afe4e791b6">Cheat Sheet of Machine Learning and Python (and Math) Cheat Sheets</a></p>
     <ul>
         <li><a href="File/python_cheat_1page.pdf">Python 1 page</a></li>
@@ -72,10 +117,10 @@
 
     </ul>
 </div>
-<div>
-    <h1>An introduction to statistic learning Notes of YC</h1>
+<div id="ISL">
+    <h2>An introduction to statistic learning Notes of YC</h2>
     <ul>
-        <h2><b>2</b></h2>
+        <h3><b>2</b></h3>
         <b>2.1</b>
         <li><a href="File/ISL/An%20introduction%20to%20statistic%20learning%202.1.1.html">2.1.1</a></li>
         <li><a href="File/ISL/An%20introduction%20to%20statistic%20learning%202.1.2.html">2.1.2</a></li>
@@ -92,21 +137,27 @@
         <li><a href=""></a></li>
     </ul>
 </div>
-<div>
-    <h1>统计学习方法-李航 Notes</h1>
+<div id="统计学习方法">
+    <h2>统计学习方法-李航 Notes</h2>
     <ul>
         <li><a href="File/统计学习方法/Notes/Chapter1.html">第一章、统计学习方法</a></li>
         <li><a href="File/统计学习方法/Notes/Chapter2.html">第二章、感知机</a></li>
         <li><a href="File/统计学习方法/Notes/Chapter3.html">第三章、k近邻法</a></li>
         <li><a href="File/统计学习方法/Notes/Chapter4.html">第四章、朴素贝叶斯法</a></li>
         <li><a href="File/统计学习方法/Notes/Chapter5.html">第五章、决策树</a></li>
+        <li><a href="File/统计学习方法/Notes/Chapter6.html">第六章、Logistic回归方法</a></li>
+        <li><a href="File/统计学习方法/Notes/Chapter7.html">第七章、支持向量机（SVM）</a></li>
+        <li><a href="File/统计学习方法/Notes/Chapter8.html">第八章、提升算法(Boost)</a></li>
     </ul>
 </div>
-<div>
-    <h1>Other</h1>
+<div id="other">
+    <h2>Other</h2>
     <ul>
         <a href="http://www.runoob.com/html/html-quicklist.html"><li>HTML 速查列表</li></a>
         <li><a href="http://blog.leanote.com/post/freewalk/Markdown-%E8%AF%AD%E6%B3%95%E6%89%8B%E5%86%8C">Markdown 语法手册</a></li>
+        <li><a href="Source/Other/Git_cheat_sheet.html">Git Cheat Sheet</a></li>
+        <li><a href="http://www.cheat-sheets.org/">All cheat sheet in one page</a></li>
+        <li><a href="http://blog.csdn.net/ws_20100/article/details/49159291">Latex数学符号表示</a></li>
     </ul>
 </div>
 </body>

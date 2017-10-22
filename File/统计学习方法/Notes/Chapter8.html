@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+  });
+    </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <meta charset="UTF-8">
+    <title>Chapter8 提升方法Boost</title>
+</head>
+<body>
+    <h3>啃完了Logistic和SVM的数学，来看Boost就简单了很多</h3>
+    <h3>本文主要介绍Adaboost</h3>
+    <h3>思想：对于一个复杂任务的判断，多个专家的判断要比其中任何一个专家单独的判断好！也就是“三个臭皮匠顶个诸葛亮”</h3>
+    <h3>8.1 提升方法Adaboost算法</h3>
+    <ul>
+        <li>先讲一段历史，Kearns和Valiant提出了“强可学习”和“弱可学习”的概念。</li>
+        <li>强可学习：在概率近似正确（PAC）的框架中，一个类如果存在一个多项式的学习算法能学习它，并且正确率很高，那就称之为强可学习</li>
+        <li>弱可学习：如果存在一个多项式的学习算法能学习它，并且正确率比随机猜测略好一点，那么就称之为弱可学习</li>
+        <li>非常有意思的是，Schapire提出，强可学习和弱可学习实际上是等价的。</li>
+        <li>这告诉我们，在学习中，如果我们已经发现了一个“弱学习算法”，那么采取什么方法才可以将它提升成“强学习算法”？</li>
+        <li>弱学习算法通常对我们来说要简单的多，实现从弱变强的算法有很多，最具代表性的是AdaBoost算法。</li>
+    </ul>
+    <ul>
+        <li>对于分类问题来说，给定一个训练集，求一个比较粗糙的分类规则要比精确的分类规则容易的多</li>
+        <li>提升算法就是从弱学习算法出发，反复学习，得到一系列的弱分类器（基本分类器），然后将这些弱分类器组合，就得到了提升后的强分类器</li>
+        <li>大多数提升方法都是改变训练集的概率分布（数据的权值分布）</li>
+    </ul>
+    <ul>
+        <li>AdaBoost的步骤如下：</li>
+        <li>对于训练集$T= {(x_1,y_1),(x_2,y_2),...,(x_N,y_N)}$</li>
+        <ol>
+
+            <li>先按照等概率分布对数据进行分类</li>
+            <ul>
+                <li>$D_1 = (w_{11}, ...,w_{1i},...w_{1N}), w_{1i} = \frac{1}{N}, i = 1,2,...,N$</li>
+            </ul>
+            <li>对于第m = 1,2,...,M次迭代</li>
+            <ol>
+                <li>首先按照权值得出弱分类器</li>
+                <ul>
+                    <li>$G_m(x):\chi\rightarrow {-1, +1}$</li>
+                </ul>
+                <li>计算$G_m(x)$在训练集上的分类误差率</li>
+                <ul>
+                    <li>$e_m = P(G_m(x_i)\neq y_i) = \sum_{i=1}^Nw_{mi}I(G_m(x_i)\neq y_i)$</li>
+                </ul>
+                <li>计算$G_m(x)$的系数：(加大分类误差率小的弱分类器的权值，降低分类误差率大的分类器权值)</li>
+                <ul>
+                    <li>$\alpha_m = \frac{1}{2}log\frac{1-e_m}{e_m}$</li>
+                    <li>$\alpha_m$随着$e_m$的减小而增大！误差率越小则对应的系数越大！在最终的分类器中作用越大！</li>
+                </ul>
+                <li>更新训练集的权值分布(提高那些前一轮弱分类错误的样本权值，降低那些分类正确样本的权值)：</li>
+                <ul>
+                    <li>$D_{m+1} = (w_{m+1,1},...,w_{m+1,N})$</li>
+                    <li>其中$w_{m+1,i} = \frac{w_{m,i}}{Z_m} {\rm e}^{-\alpha_my_iG_m(x_i)}$</li>
+                    <li>$Z_m = \sum_{i=1}^Nw_{m,i}{\rm e}^{-\alpha_my_iG_m(x_i)}$是归一化因子,因为要满足$\sum_{i=1}^Nw_{m,i} = 1$</li>
+                    <li>上式可知，对于分类正确的样本$-\alpha_my_iG_m(x_i) = -\alpha_m$,对于分类错的样本$-\alpha_my_iG_m(x_i)= \alpha_m$</li>
+                    <li>两相比较，误分类的样本权值被扩大了${\rm e}^{2\alpha_m}=\frac{e_m}{1-e_m}$倍，实现了对错误样品权值的提高和正确样品权值的降低</li>
+                </ul>
+            </ol>
+            <li>构建基本分类器线性组合</li>
+            <ul>
+                <li>$f(x) = \sum_{m=1}^M\alpha_mG_m(x)$</li>
+                <li>最终分类器的形式为：</li>
+                <li>$G(x)=sign(f(x))=sign(\sum_{i=1}^M\alpha_mG_m(x))$</li>
+            </ul>
+        </ol>
+    </ul>
+    <h3>8.2训练误差分析</h3>
+    <li>AdaBoost的最终误差界为：</li>
+    <ul>
+        <li>$\frac{1}{N}\sum_{i=1}^NI(G(x_i)\neq y_i)\leq \frac{1}{N}\sum_{i}{\rm e}^{-y_if(x_i)}=\prod_mZ_m$</li>
+        <li>这说明，在每一轮选取适当的$G_m$使得$Z_m$最小，从而使训练误差迅速下降，而且是指数下降的</li>
+        <li>Adaptive是Ada的全写，也是AdaBoost的特点，即可以适应弱分类器各自的训练误差率</li>
+    </ul>
+    <h3>8.3AdaBoost算法的解释</h3>
+    <li>这节主要介绍前向分步算法，以及应用到AdaBoost，我略过不讲，在下节的Boosting Tree内容有类似的部分</li>
+    <h3>8.4提升树（Boosting tree）</h3>
+    <ul>
+        <li>提升方法实际上采用的加法模型(弱分类器或基函数的线性组合)以及前向分步算法</li>
+        <li>对分类问题，决策树是二叉分类树，对回归问题，决策树是二叉回归树</li>
+        <li>提升树模型可以表示为加法模型：</li>
+        <ul>
+            <li>$f_M(x) = \sum_{m=1}^MT(x;\Theta_m)$</li>
+            <li>其中，$T(x;\Theta_m)$表示决策树；$\Theta_m$是决策树的参数；M为树的个数</li>
+        </ul>
+        <li>提升树的算法</li>
+        <ol>
+            <li>初始化提升树$f_0(x)=0$</li>
+            <li>第m步：$f_m(x) = f_{m-1}(x)+T(x;\Theta_m)$,其中，$f_{m-1}(x)$为当前模型，通过经验风险极小化确定下一颗决策树的参数：</li>
+            <li>$\hat\Theta_m = arg \min \limits_{\Theta_m}\sum_{i=1}^NL(y_i, f_{m-1}(x)+T(x;\Theta_m))$</li>
+            <p>下面叙述二叉回归树问题</p>
+            <li>对于回归问题，我们将输出连续空间泄愤为J个不相交的区域$R_1,R_2,...,R_J$,并且每个区域上有确定的输出常量$c_j$</li>
+            <li>那么我们可以将决策树表示为：</li>
+            <ul>
+                <li>$T(x;\Theta)=\sum_{j=1}^Jc_jI(x \epsilon R_j)$</li>
+                <p>其中参数$\Theta = \{(R_1,c_1),...,(R_J,c_J)\}$表示树的划分方式和个区域上输出的值</p>
+            </ul>
+            <li>根据前面的前向分步算法</li>
+            <ol>
+                <li>$f_0(x)=0$</li>
+                <li>$f_m(x) = f_{m-1}(x)+T(x;\Theta_m)$</li>
+                <li>$f_M(x) = \sum_{m=1}^MT(x;\Theta_m)$</li>
+                <li>每一步中：$\hat\Theta_m = arg \min \limits_{\Theta_m}\sum_{i=1}^NL(y_i, f_{m-1}(x)+T(x;\Theta_m))$</li>
+            </ol>
+            <li>采用平方误差损失函数:</li>
+            <ul>
+                <li>$L(y,f(x))=(y-f(x))^2$</li>
+            </ul>
+            <li>损失变为:</li>
+            <ul>
+                <li>$L(y,f_{m-1}(x)+T(x;\Theta_m)) = [y - f_{m-1}(x)-T(x;\Theta_m)]^2 = [r - T(x;\Theta_m) ]^2$</li>
+                <p>这里$r = y - f_{m-1}(x)$是当前模型拟合数据的残差！！也就是说，每次迭代，是对经过之前迭代后产生的残差进行拟合！</p>
+            </ul>
+        </ol>
+        <li>梯度提升Gradient Boosting</li>
+        <li>其关键是利用损失函数的负梯度作为残差的近似值</li>
+        <ul>
+            <li>$r_{m,i}=-[\frac{\partial L(y,f(x_i))}{\partial f(x_i)}]_{f(x)=f_{m-1}(x)}$</li>
+            <li>如果误差函数是平方误差，则上式等于$y-f(x_i)$也就是残差,对于一般的损失函数，它是残差的近似值</li>
+        </ul>
+    </ul>
+</body>
+</html>
