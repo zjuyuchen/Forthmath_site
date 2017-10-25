@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+  });
+    </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <meta charset="UTF-8">
+    <title>3.1简单线性回归</title>
+</head>
+<body>
+<h3>简单线性回归</h3>
+<h4>在这里我强烈建议先看下概率论和数理统计中关于总体和样本相关的描述。</h4>
+<h4>不然很有可能搞不清楚下面$\hat{\beta}$和$\beta$以及$Var(\mu)$和$SE(\hat{\mu})$的区别</h4>
+<p>数学上，我们可以将（总体）线性关系写为$Y\approx \beta_0 + \beta_1 X$</p>
+<p>我们通过训练，得到训练集(样本)估算出来的参数 $\hat{\beta}_0 和\hat{\beta}_1$</p>
+<p>从而我们可以用$\hat{Y} = \hat{\beta}_0 +\hat{\beta}_1X$来预测结果</p>
+<h3>3.1.1参数的估算</h3>
+<ul>
+    <li>我们将Residual sum of squares (RSS)定义为：</li>
+    <ul>
+        <li>RSS=$e_1^2 + e_2^2 + ... + e_n^2$</li>
+        <li>其中$e_i = y - \hat{y} = y - \hat{\beta}_0 - \hat{\beta}_1x_i$</li>
+    </ul>
+    <li>通过数学计算，我们可以得到让RSS最小的$\hat{\beta_0}$和$\hat{\beta_1}$:</li>
+    <ul>
+        <li>$\hat{\beta_1} = \frac{\sum_{i=1}^n(x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^n(x_i - \bar{x})^2}$</li>
+        <li>$\bar{\beta_0} = \bar{y} - \hat{\beta_1}\bar{x}$</li>
+        <li>PS：协方差 $Cov(Y, X) = E[(X-E(X))(Y-E(Y))]$</li>
+        <li>PS: 方差 $Var(X) = E[(X-E(x))^2]$</li>
+        <li>PS：对于等概率分布的X，我们有$E(X) = \bar{X}$,是否看到一点和$\hat{\beta_1}$规律？方便记忆</li>
+        <li>PS: 协方差用来表示X,Y之间的线性关系，无关则$Cov(Y,X) = 0$，线性则$Cov(Y,X) = 1$</li>
+    </ul>
+</ul>
+<h3>3.1.2估算参数准确率</h3>
+    <li>假设Y和X的真实关系是：</li>
+    <ul>
+        <li>$Y = \beta_0 + \beta_1X + \epsilon$</li>
+    </ul>
+    <ul>
+        <li>我们有：</li>
+        <ul>
+            <li>$Var(\hat{\mu}) = SE(\hat{\mu})^2 = \frac{\sigma^2}{n}$</li>
+            <li>其中$\sigma  = \sqrt{\sum_{i=1}^n(y_i-\bar{y})^2}$</li>
+            <li>$Var(\hat{\mu})$相当于告诉我们$\hat{\mu}$偏离总体均值$\mu$的程度</li>
+        </ul>
+    </ul>
+    <li>我们可以用标准差估算置信区间：</li>
+    <ul><li>95%的置信区间可以表示为[$\beta_1 - 2\cdot SE(\hat{\beta_1})$,$\beta_1 + 2\cdot SE(\hat{\beta_1})$ ] </li></ul>
+    <li>也可以用来做假设验证：</li>
+    <p>最常用的假设是Null假设</p>
+    <ul>
+        <li>$H_0:$ X, Y 之间没有关系</li>
+        <li>$H_0: \beta_1 = 0$</li>
+    </ul>
+    <p>以及相反假设：</p>
+    <ul>
+        <li>$H_1:$ X, Y之间存在关系</li>
+        <li>$H_1: \beta_1\neq 0$</li>
+    </ul>
+    <li>那么我们怎么通过检验$\hat{\beta}_1$来确定$\beta_1$的确不是0呢？</li>
+    <li>我们用下面的t-statistic来表征：</li>
+    <ul>
+        <li>$t = \frac{\hat{\beta}_1-0}{SE(\hat{\beta_1})}$</li>
+        <li>可见，如果$SE(\hat{\beta_1})$很小，那么即便是很小的$\hat{\beta}_1$,也可以说明$\beta_1\neq 0$</li>
+        <li>反之，如果$SE(\hat{\beta_1})$很大，那么$\beta_1$需要更大才可以让我们否定Null假设</li>
+    </ul>
+</body>
+</html>
