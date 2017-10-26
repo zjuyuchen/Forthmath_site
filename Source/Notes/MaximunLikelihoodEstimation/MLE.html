@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        div {text-align: center; width: 70%;margin: auto;}
+    </style>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+  });
+    </script>
+    <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <meta charset="UTF-8">
+    <title>MLE极大似然估计</title>
+</head>
+<body>
+<div>
+    <h3>极大似然估计</h3>
+    <p>极大似然估计是统计学习方法中比较重要的一种估计参数的方法。之前看了一些
+        网上的博客，总觉得说的不够清楚，最近看了陈希孺的概率论与数理统计，才豁然开朗。
+        这里我就谈下我对极大似然估计的理解。</p>
+    <p>我们假设一个随机变量<b>总体</b>符合某个概率分布：</p>
+        <p>$X\sim P(X;\theta)$</p>
+    <p>但它具体的参数$\theta$是什么我们是不知道的。现在我们的任务就是通过对
+        样本的分析估计$\theta$的取值。</p>
+    <p>我们采样后得到的样本如下：</p>
+    <p>$\{x_1, x_2, x_3, ..., x_n\}$</p>
+    <p>则每个独立样本出现的概率为：</p>
+    <p>$P(x_i;\theta), i = \{1,2,3, ..., n\}$</p>
+    <p>那么样本$\{x_1, x_2, x_3, ..., x_n\}$出现的概率为所有独立样本出现概率的乘积：</p>
+    <p>$L(x_1,x_2,x_3,...,x_n;\hat{\theta})=P(x_1;\hat{\theta})P(x_2;\hat{\theta})P(x_3;\hat{\theta})...P(x_n;\hat{\theta}) = \prod_{i=1}^nP(x_i;\hat{\theta})$</p>
+    <p>上面的函数$L(x_1,x_2,x_3,...,x_n;\hat{\theta})$就称为样本$\{x_1, x_2, x_3, ..., x_n\}$的似然函数</p>
+    <p>我们这样想，既然我们抽样得到了上面的样本，在没有其它额外信息的情况下，我们认为使$L$最大
+    的参数$\hat{\theta}$就是总体的参数$\theta$ 的很好估计。我们把$L$看成是$\{x_1,x_2,x_3,...,x_n\}$的
+    函数，求使$L$最大的参数$\hat{\theta}$，这就是极大似然估计。</p>
+
+    <h3>举个例子</h3>
+    <p>假设我们有一个特殊的硬币，抛出正面的概率为$p$,反面的概率为$1-p$</p>
+    <p>现在经过4次试验以后的结果是$X = \{正，正，正，反\}$</p>
+    <p>这个样本的似然函数是$L(X;\hat{p})=\hat{p}^3(1-\hat{p}) = \hat{p}^3 - \hat{p}^4$</p>
+    <p>该函数为Concave函数，因此存在极大值。$\frac{\partial{L(X;\hat{p})}}{\partial{\hat{p}}} = -4\hat{p}^3 + \hat{p}^2 = 0$</p>
+    <p>解上面的式子得到：$\hat{p} = 0.75$</p>
+    <p>则我们认为该硬币出现正面的概率为0.75</p>
+    <p>当然，因为我们只抛了四次硬币，如果我们抛了一百次，得出的估计值会更接近真实参数的大小。</p>
+</div>
+</body>
+</html>
